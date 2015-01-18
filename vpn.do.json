@@ -1,0 +1,32 @@
+{
+  "variables": {
+    "vdp_path" : "../vpn-deploy-playbook/",
+    "do_region" : "sfo1"
+  },
+  "builders": [{
+    "type": "digitalocean",
+    "droplet_name": "vpn-server",
+    "image": "ubuntu-14-04-x64",
+    "region": "{{user `do_region`}}",
+    "ssh_username": "root",
+    "snapshot_name": "vpn-server-snapshot-{{timestamp}}"
+  }],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+         "sleep 15",
+         "sudo apt-get install -y software-properties-common",
+         "sudo apt-add-repository -y ppa:ansible/ansible",
+         "sudo apt-get update",
+         "sudo apt-get install -y ansible"
+      ]
+    },
+    {
+      "type": "ansible-local",
+      "playbook_dir": "{{user `vdp_path`}}",
+      "playbook_file": "playbook/vpn-allinone.yml",
+      "group_vars" : "playbook/group_vars"
+    }
+  ]
+}
